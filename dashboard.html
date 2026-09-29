@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — SI-OP3 BBWS Brantas</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="icon" href="assets/img/logo-pupr.png">
+</head>
+<body>
+
+  <header class="app-header">
+    <h1>🏞️ SI-OP3 BBWS Brantas</h1>
+    <div class="user-info">
+      <div id="userName">Loading...</div>
+      <div class="role" id="userRole"></div>
+      <button class="btn-logout" onclick="logout()">Keluar</button>
+    </div>
+  </header>
+
+  <main class="app-content">
+    <div class="welcome-card">
+      <h2 id="greeting">Selamat Datang!</h2>
+      <p id="welcomeText">Silakan pilih menu di bawah ini.</p>
+    </div>
+
+    <div class="menu-grid" id="menuGrid">
+      <!-- Menu akan di-generate oleh JavaScript -->
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/supabase.js"></script>
+  <script src="assets/js/auth.js"></script>
+  
+  <script>
+    // Cek login
+    const session = requireLogin();
+    
+    if (session) {
+      // Tampilkan info user
+      document.getElementById('userName').textContent = session.nama_lengkap;
+      document.getElementById('userRole').textContent = session.role.toUpperCase();
+      document.getElementById('greeting').textContent = `Selamat Datang, ${session.nama_lengkap}!`;
+      
+      // Generate menu berdasarkan role
+      const menus = [
+        { icon: '📸', label: 'Presensi', desc: 'Absen harian', href: 'presensi.html', roles: ['admin', 'ppk', 'ptt', 'staf_pengamat', 'ppa', 'pekarya'] },
+        { icon: '👁️', label: 'Monitoring', desc: 'Monitoring PPA/Pekarya', href: 'monitoring.html', roles: ['admin', 'ppk', 'staf_pengamat'] },
+        { icon: '🤝', label: 'Koordinasi', desc: 'Koordinasi Juru/Krosda', href: 'koordinasi.html', roles: ['admin', 'ppk', 'staf_pengamat'] },
+        { icon: '📝', label: 'Laporan', desc: 'Laporan harian', href: 'laporan.html', roles: ['admin', 'ppk', 'ptt', 'staf_pengamat', 'ppa', 'pekarya'] },
+        { icon: '👥', label: 'Pegawai', desc: 'Data pegawai', href: 'pegawai.html', roles: ['admin', 'ppk', 'ptt'] },
+        { icon: '✅', label: 'Verifikasi', desc: 'Verifikasi presensi', href: 'verifikasi.html', roles: ['admin', 'ppk', 'staf_pengamat'] },
+        { icon: '📊', label: 'Penilaian', desc: 'Penilaian kinerja', href: 'penilaian.html', roles: ['admin', 'ppk', 'ptt'] },
+        { icon: '⚙️', label: 'Pengaturan', desc: 'Pengaturan aplikasi', href: 'pengaturan.html', roles: ['admin'] }
+      ];
+      
+      const menuGrid = document.getElementById('menuGrid');
+      menus
+        .filter(m => m.roles.includes(session.role))
+        .forEach(m => {
+          const card = document.createElement('a');
+          card.className = 'menu-card';
+          card.href = m.href;
+          card.innerHTML = `
+            <div class="icon">${m.icon}</div>
+            <div class="label">${m.label}</div>
+            <div class="desc">${m.desc}</div>
+          `;
+          menuGrid.appendChild(card);
+        });
+    }
+  </script>
+</body>
+</html>
