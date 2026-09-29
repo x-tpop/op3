@@ -103,7 +103,8 @@ aside nav{display:flex;flex-direction:column;gap:6px}
 .btn-ghost{background:transparent;color:var(--ink);border-color:var(--line)}
 .btn-ghost:hover:not(:disabled){border-color:var(--ink);background:var(--bg)}
 .btn-block{width:100%}
-.badge{display:inline-flex;align-items:center;gap:6px;font:700 11.5px var(--font);padding:5px 12px;border-radius:999px}
+.btn.sm{padding:8px 14px;font-size:13px}
+.badge{display:inline-flex;align-items:center;gap:6px;font:700 11.5px var(--font);padding:5px 12px;border-radius:999px;white-space:nowrap}
 .badge .dot{width:6px;height:6px;border-radius:50%}
 .b-ok{background:var(--green-soft);color:#166534}.b-ok .dot{background:var(--green)}
 .b-wait{background:var(--amber-soft);color:#92400E}.b-wait .dot{background:var(--amber)}
@@ -161,6 +162,16 @@ aside nav{display:flex;flex-direction:column;gap:6px}
 .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue);outline:3px solid rgba(37,99,235,.15)}
 .frow{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 
+/* TABEL */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:780px}
+thead th{font:800 11.5px var(--font);text-transform:uppercase;letter-spacing:.09em;color:var(--muted);text-align:left;padding:14px 16px;background:var(--bg);border-bottom:1px solid var(--line);white-space:nowrap}
+tbody td{padding:14px 16px;border-bottom:1px solid var(--line-soft);font:500 14px var(--font);vertical-align:middle}
+tbody tr{transition:background .15s}
+tbody tr:hover{background:var(--line-soft)}
+.empty{display:flex;flex-direction:column;align-items:center;gap:10px;padding:32px;color:var(--muted);font:600 14px var(--font)}
+.empty svg{width:28px;height:28px}
+
 /* TOAST */
 #toasts{position:fixed;z-index:130;right:24px;bottom:24px;display:flex;flex-direction:column;gap:12px;max-width:min(420px,calc(100vw - 48px))}
 .toast{display:flex;gap:12px;align-items:flex-start;background:var(--ink);color:#FFF;border-radius:16px;padding:14px 18px;box-shadow:var(--shadow-lg);font:600 13.5px/1.5 var(--font);animation:toastIn .35s cubic-bezier(.2,1.4,.3,1)}
@@ -169,6 +180,22 @@ aside nav{display:flex;flex-direction:column;gap:6px}
 .toast.out{animation:toastOut .3s ease forwards}
 @keyframes toastIn{from{opacity:0;transform:translateY(20px) scale(.9)}}
 @keyframes toastOut{to{opacity:0;transform:translateY(15px) scale(.95)}}
+
+/* MODAL FOTO */
+#fotoModal{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;padding:16px}
+#fotoModal.open{display:flex}
+.foto-bg{position:absolute;inset:0;background:rgba(15,23,42,.85);backdrop-filter:blur(4px)}
+.foto-card{position:relative;max-width:90vw;max-height:90vh;background:#fff;border-radius:20px;overflow:hidden;box-shadow:var(--shadow-lg);animation:modalIn .3s cubic-bezier(.2,1.2,.3,1)}
+@keyframes modalIn{from{opacity:0;transform:scale(.9)}}
+.foto-head{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line)}
+.foto-head h4{font:800 15px var(--font)}
+.foto-body{padding:20px;background:var(--bg);overflow:auto;max-height:70vh}
+.foto-body img{max-width:100%;max-height:65vh;display:block;border-radius:12px;margin:0 auto}
+.foto-close{background:var(--red-soft);color:var(--red);border:0;width:36px;height:36px;border-radius:99px;display:grid;place-items:center;cursor:pointer}
+
+/* FILTER BAR */
+.filter-bar{display:flex;gap:12px;flex-wrap:wrap;padding:16px;background:var(--bg);border-radius:14px;margin-bottom:20px;align-items:flex-end}
+.filter-bar .field{margin:0;flex:1;min-width:160px}
 
 /* RESPONSIVE */
 @media (max-width:1100px){
@@ -190,6 +217,7 @@ aside nav{display:flex;flex-direction:column;gap:6px}
   .tb-time{display:none}
   .id-stats{grid-template-columns:1fr}
   .frow{grid-template-columns:1fr}
+  .filter-bar .field{min-width:100%}
 }
 </style>
 </head>
@@ -209,6 +237,7 @@ aside nav{display:flex;flex-direction:column;gap:6px}
   <nav>
     <button class="nav-btn on" data-page="dashboard"><i data-lucide="layout-dashboard"></i>Dashboard</button>
     <button class="nav-btn" data-page="presensi"><i data-lucide="fingerprint"></i>Presensi</button>
+    <button class="nav-btn" data-page="verifikasi" id="navVerifikasi"><i data-lucide="clipboard-check"></i>Verifikasi</button>
     <button class="nav-btn" data-page="monitoring"><i data-lucide="eye"></i>Monitoring</button>
     <button class="nav-btn" data-page="koordinasi"><i data-lucide="handshake"></i>Koordinasi</button>
     <button class="nav-btn" data-page="laporan"><i data-lucide="file-text"></i>Laporan</button>
@@ -336,6 +365,55 @@ aside nav{display:flex;flex-direction:column;gap:6px}
         </div>
       </section>
 
+      <!-- VERIFIKASI -->
+      <section class="page" data-page="verifikasi">
+        <div class="card">
+          <div style="margin-bottom:20px">
+            <span class="kicker">Verifikasi Presensi</span>
+            <h3 style="margin:6px 0 4px">Verifikasi Kehadiran PPA & Pekarya</h3>
+            <p style="color:var(--muted);font-size:13px">Periksa foto + watermark GPS, lalu tentukan Layak atau Tidak Layak.</p>
+          </div>
+
+          <div class="filter-bar">
+            <div class="field">
+              <label>Tanggal</label>
+              <input type="date" id="verifTanggal">
+            </div>
+            <div class="field">
+              <label>Status</label>
+              <select id="verifStatus">
+                <option value="belum">Belum Diverifikasi</option>
+                <option value="layak">Layak</option>
+                <option value="tidak_layak">Tidak Layak</option>
+                <option value="semua">Semua</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>&nbsp;</label>
+              <button class="btn btn-blue" id="verifRefresh"><i data-lucide="refresh-cw"></i>Muat Ulang</button>
+            </div>
+          </div>
+
+          <div class="tbl-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Pegawai</th>
+                  <th>Jabatan / DI</th>
+                  <th>Waktu</th>
+                  <th>Foto</th>
+                  <th>Status</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="verifTbody">
+                <tr><td colspan="6" style="text-align:center;padding:40px;color:var(--muted)">Memuat data...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
       <!-- MONITORING -->
       <section class="page" data-page="monitoring">
         <div class="card">
@@ -388,12 +466,27 @@ aside nav{display:flex;flex-direction:column;gap:6px}
 
 <div id="toasts"></div>
 
+<!-- MODAL FOTO -->
+<div id="fotoModal">
+  <div class="foto-bg" onclick="closeFotoModal()"></div>
+  <div class="foto-card">
+    <div class="foto-head">
+      <h4 id="fotoModalTitle">Foto Presensi</h4>
+      <button class="foto-close" onclick="closeFotoModal()"><i data-lucide="x"></i></button>
+    </div>
+    <div class="foto-body">
+      <img id="fotoModalImg" src="" alt="">
+    </div>
+  </div>
+</div>
+
 <script src="https://unpkg.com/lucide@0.454.0/dist/umd/lucide.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="assets/js/config.js"></script>
 <script src="assets/js/supabase.js"></script>
 <script src="assets/js/auth.js"></script>
 <script src="assets/js/presensi.js"></script>
+<script src="assets/js/verifikasi.js"></script>
 
 <script>
 /* ============================================================
@@ -401,22 +494,16 @@ aside nav{display:flex;flex-direction:column;gap:6px}
    ============================================================ */
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
-const pad = n => String(n).padStart(2, '0');
 const refreshIcons = () => { if (window.lucide) lucide.createIcons(); };
 
-// ============================================================
 // CEK LOGIN
-// ============================================================
 const session = requireLogin();
 if (!session) throw new Error('Not logged in');
 
-// ============================================================
 // ISI DATA SESSION
-// ============================================================
 const pegawai = session.pegawai || {};
 const namaLengkap = pegawai.nama || session.nama_lengkap || 'Pegawai';
 
-// Set semua elemen .js-nama, .js-jabatan, dll
 $$('.js-nama').forEach(el => el.textContent = namaLengkap);
 $$('.js-jabatan').forEach(el => el.textContent = pegawai.jabatan || session.role);
 $$('.js-nomor').forEach(el => el.textContent = pegawai.nomor_identitas || session.username);
@@ -433,7 +520,7 @@ $$('.js-username').forEach(el => el.textContent = session.username);
   }
 })();
 
-// Avatar (jika ada)
+// Avatar
 if (pegawai.link_foto_2 || pegawai.link_foto_1) {
   const foto = pegawai.link_foto_2 || pegawai.link_foto_1;
   $$('.js-avatar').forEach(el => el.src = foto);
@@ -444,12 +531,18 @@ const h = new Date().getHours();
 $('#greetWord').textContent = h < 11 ? 'Selamat pagi' : h < 15 ? 'Selamat siang' : h < 19 ? 'Selamat sore' : 'Selamat malam';
 $('#greetName').textContent = namaLengkap.split(' ')[0];
 
+// SEMBUNYIKAN MENU VERIFIKASI UNTUK ROLE TERTENTU
+if (!['admin', 'ppk', 'staf_pengamat'].includes(session.role)) {
+  document.getElementById('navVerifikasi')?.remove();
+}
+
 // ============================================================
 // NAVIGASI
 // ============================================================
 const PAGES = {
   dashboard: { k: 'Portal Pegawai', t: 'Dashboard' },
   presensi: { k: 'E-Kehadiran', t: 'Presensi' },
+  verifikasi: { k: 'Verifikasi', t: 'Verifikasi Presensi' },
   monitoring: { k: 'Monitoring', t: 'Monitoring PPA & Pekarya' },
   koordinasi: { k: 'Koordinasi', t: 'Koordinasi Juru & Krosda' },
   laporan: { k: 'Laporan', t: 'Laporan Harian' },
@@ -512,9 +605,7 @@ const state = {
   presensi: { masuk: null, keluar: null }
 };
 
-// ============================================================
-// PRESENSI — CEK DATA HARI INI
-// ============================================================
+// CEK PRESENSI HARI INI
 async function cekPresensiHariIni() {
   if (!session.id_pegawai) return;
   try {
@@ -532,9 +623,7 @@ async function cekPresensiHariIni() {
   } catch (e) { console.error(e); }
 }
 
-// ============================================================
-// PRESENSI — RENDER
-// ============================================================
+// RENDER PRESENSI
 function renderPresensi() {
   const p = state.presensi;
   const fmt = d => d ? d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '—';
@@ -546,7 +635,6 @@ function renderPresensi() {
   $('#ptl').classList.toggle('on', !!p.masuk);
   
   let note, actionsHTML;
-  
   if (!p.masuk) {
     note = 'Anda belum melakukan presensi hari ini.';
     actionsHTML = `<button class="btn btn-blue" onclick="go('presensi')"><i data-lucide="camera"></i>Check-in Sekarang</button>`;
@@ -565,9 +653,7 @@ function renderPresensi() {
   refreshIcons();
 }
 
-// ============================================================
-// PRESENSI — GEOLOKASI
-// ============================================================
+// GEOLOKASI
 async function initLocation() {
   try {
     const loc = await getLocation();
@@ -582,23 +668,16 @@ async function initLocation() {
   }
 }
 
-// ============================================================
-// PRESENSI — KAMERA
-// ============================================================
+// KAMERA
 async function initCamera() {
   const video = $('#video');
   const ok = await startCamera(video, 'user');
-  if (!ok) {
-    toast('Gagal akses kamera. Pastikan izin kamera diberikan.', 'error');
-  }
+  if (!ok) toast('Gagal akses kamera. Pastikan izin kamera diberikan.', 'error');
 }
 
-// Capture
-$('#btnCapture').addEventListener('click', async () => {
-  if (!state.lokasi) {
-    toast('Lokasi belum terdeteksi', 'warn');
-    return;
-  }
+// CAPTURE
+$('#btnCapture')?.addEventListener('click', async () => {
+  if (!state.lokasi) { toast('Lokasi belum terdeteksi', 'warn'); return; }
   const video = $('#video');
   const base64 = await captureWithWatermark(video, state.lokasi);
   const compressed = await compressImage(base64, CONFIG.FOTO_MAX_WIDTH, CONFIG.FOTO_QUALITY);
@@ -613,8 +692,8 @@ $('#btnCapture').addEventListener('click', async () => {
   toast('Foto berhasil diambil', 'success');
 });
 
-// Retake
-$('#btnRetake').addEventListener('click', () => {
+// RETAKE
+$('#btnRetake')?.addEventListener('click', () => {
   state.fotoBase64 = null;
   $('#camPreview').hidden = true;
   $('#camWrap').hidden = false;
@@ -623,8 +702,8 @@ $('#btnRetake').addEventListener('click', () => {
   $('#btnSubmit').hidden = true;
 });
 
-// Submit
-$('#btnSubmit').addEventListener('click', async () => {
+// SUBMIT PRESENSI
+$('#btnSubmit')?.addEventListener('click', async () => {
   if (!state.fotoBase64 || !state.lokasi) {
     toast('Foto atau lokasi belum siap', 'warn');
     return;
@@ -641,11 +720,9 @@ $('#btnSubmit').addEventListener('click', async () => {
     const namaFile = `presensi_${session.username}_${today}_${tipe}_${timestamp}.jpg`;
     const folderPath = `Presensi/${today.slice(0, 7)}/DI-${pegawai.id_di || 'X'}`;
     
-    // Upload foto
     const uploadResult = await uploadFoto(state.fotoBase64, namaFile, folderPath);
     if (!uploadResult.success) throw new Error(uploadResult.error || 'Upload gagal');
     
-    // Simpan ke Supabase
     const jam = now.toTimeString().slice(0, 8);
     const lokasiStr = `${state.lokasi.lat.toFixed(6)}, ${state.lokasi.lng.toFixed(6)}`;
     
@@ -672,7 +749,6 @@ $('#btnSubmit').addEventListener('click', async () => {
     toast(`Check-${tipe} berhasil pada ${jam.slice(0, 5)} WIB`, 'success');
     renderPresensi();
     
-    // Reset form
     $('#camPreview').hidden = true;
     $('#camWrap').hidden = false;
     $('#btnCapture').hidden = false;
@@ -700,6 +776,10 @@ $('#btnSubmit').addEventListener('click', async () => {
   cekPresensiHariIni();
   await initCamera();
   await initLocation();
+  
+  if (['admin', 'ppk', 'staf_pengamat'].includes(session.role)) {
+    initVerifikasi();
+  }
   refreshIcons();
 })();
 </script>
