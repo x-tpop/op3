@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — SI-OP3 BBWS Brantas</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="icon" href="assets/img/logo-pupr.png">
+</head>
+<body>
+
+  <div class="login-container">
+    <div class="login-card">
+      <div class="login-logo">
+        <img src="assets/img/logo-pupr.png" alt="Logo PUPR" onerror="this.style.display='none'">
+        <h1>SI-OP3 BBWS Brantas</h1>
+        <p>Sistem Informasi Operasi & Pemeliharaan</p>
+        <p>UPI Banyuwangi</p>
+      </div>
+      
+      <div id="errorMsg" class="error-msg"></div>
+      
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" placeholder="Masukkan NSP/NPA/NPK atau username" required autocomplete="username">
+        </div>
+        
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="Masukkan password" required autocomplete="current-password">
+        </div>
+        
+        <button type="submit" id="btnLogin" class="btn-login">Masuk</button>
+      </form>
+      
+      <div class="login-footer">
+        <p>© 2026 BBWS Brantas — PPK OP III</p>
+        <p>Versi 1.0.0</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Supabase Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <!-- Scripts -->
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/supabase.js"></script>
+  <script src="assets/js/auth.js"></script>
+  
+  <script>
+    // Redirect jika sudah login
+    if (getSession()) {
+      window.location.href = 'dashboard.html';
+    }
+  </script>
+</body>
+</html>
