@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portal Pegawai — BBWS Brantas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F6FA;--card:#FFF;--line:#E2E8F0;--line-soft:#F1F5F9;
+  --ink:#1E3A8A;--ink-2:#334155;--muted:#64748B;
+  --yellow:#FBB917;--yellow-soft:#FEF3C7;
+  --amber:#D97706;--amber-soft:#FEF3C7;
+  --blue:#2563EB;--blue-soft:#DBEAFE;--blue-dark:#1D4ED8;
+  --green:#16A34A;--green-soft:#DCFCE7;
+  --red:#DC2626;--red-soft:#FEE2E2;
+  --slate:#475569;--slate-soft:#F1F5F9;
+  --radius:24px;--radius-md:16px;
+  --font:'Plus Jakarta Sans',sans-serif;--mono:'Space Grotesk',monospace;
+  --shadow:0 1px 2px rgba(30,58,138,.06),0 10px 28px -14px rgba(30,58,138,.12);
+  --shadow-lg:0 18px 48px -16px rgba(30,58,138,.24);
+  color-scheme:light;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{overflow-x:clip}
+body{background:var(--bg);color:var(--ink);font:500 15px/1.55 var(--font);min-height:100vh;
+  background-image:radial-gradient(rgba(30,58,138,.04) 1px,transparent 1px);background-size:22px 22px}
+[hidden]{display:none!important}
+button{font-family:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit;color:var(--ink)}
+img{display:block}
+::selection{background:var(--yellow);color:var(--ink)}
+:focus-visible{outline:2.5px solid var(--blue);outline-offset:2px}
+svg.lucide{width:18px;height:18px;flex:none}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:#CBD5E1;border-radius:99px;border:2px solid var(--bg)}
+
+.kicker{font:800 11px var(--font);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.mono{font-family:var(--mono)}
+
+/* SIDEBAR */
+aside{position:fixed;inset:0 auto 0 0;width:260px;background:var(--yellow);display:flex;flex-direction:column;
+  padding:20px 14px 16px;z-index:40;border-top-right-radius:32px;border-bottom-right-radius:32px;
+  box-shadow:4px 0 24px rgba(30,58,138,.08);overflow-y:auto;scrollbar-width:none}
+aside::-webkit-scrollbar{display:none}
+.brand{display:flex;gap:12px;align-items:center;padding:4px 8px 18px;border-bottom:1.5px dashed rgba(30,58,138,.28)}
+.brand-t b{font:800 16px var(--font);letter-spacing:-.01em;display:block;line-height:1.15;color:var(--ink)}
+.brand-t small{font:700 10px var(--font);letter-spacing:.1em;text-transform:uppercase;color:rgba(30,58,138,.72)}
+.nav-label{font:800 10.5px var(--font);letter-spacing:.16em;text-transform:uppercase;color:rgba(30,58,138,.62);padding:18px 12px 8px}
+aside nav{display:flex;flex-direction:column;gap:6px}
+.nav-btn{display:flex;align-items:center;gap:12px;width:100%;padding:12px 16px;border-radius:99px;border:0;
+  background:transparent;color:var(--ink);font:600 14.5px var(--font);transition:.2s;text-align:left}
+.nav-btn:hover{background:rgba(30,58,138,.06);transform:translateX(4px)}
+.nav-btn.on{background:var(--ink);color:var(--yellow);font-weight:700;transform:translateX(4px);
+  box-shadow:0 8px 16px -6px rgba(30,58,138,.4)}
+.nav-btn .cnt{margin-left:auto;font:700 11px var(--mono);background:rgba(30,58,138,.12);padding:2px 8px;border-radius:99px}
+.nav-btn.on .cnt{background:rgba(251,185,23,.25);color:var(--yellow)}
+.side-foot{margin-top:auto;display:flex;flex-direction:column;gap:8px;padding-top:14px;border-top:1.5px dashed rgba(30,58,138,.28)}
+.side-user{display:flex;align-items:center;gap:10px;border:0;background:transparent;padding:8px 10px;border-radius:99px;text-align:left;transition:.15s}
+.side-user:hover{background:rgba(30,58,138,.06)}
+.side-user img{width:38px;height:38px;border-radius:50%;background:#fff;border:1.5px solid var(--ink);object-fit:cover}
+.side-user b{display:block;font:700 13.5px var(--font);color:var(--ink);line-height:1.2}
+.side-user small{font:600 11.5px var(--font);color:rgba(30,58,138,.78)}
+.side-out{display:flex;align-items:center;gap:10px;justify-content:center;padding:12px;border-radius:99px;
+  border:1.5px solid rgba(30,58,138,.4);background:transparent;color:var(--ink);font:700 13.5px var(--font);transition:.15s}
+.side-out:hover{background:var(--ink);color:var(--yellow);border-color:var(--ink)}
+
+/* MAIN */
+.main{margin-left:260px}
+.topbar{position:sticky;top:0;z-index:50;background:rgba(243,246,250,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.tb-in{max-width:1200px;margin:0 auto;padding:11px 28px;display:flex;align-items:center;gap:16px}
+.tb-brand-m{display:none;align-items:center;gap:10px;flex:1}
+.tb-brand-m b{font:800 14.5px var(--font);display:block;line-height:1.1;color:var(--ink)}
+.tb-brand-m small{font:700 10px var(--font);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.tb-title{flex:1;min-width:0}
+.tb-title .kicker{display:block}
+.tb-title h2{font:800 21px var(--font);letter-spacing:-.01em}
+.tb-right{display:flex;align-items:center;gap:12px}
+.tb-time{font:600 13px var(--mono);color:var(--ink-2);white-space:nowrap}
+.icon-btn{width:42px;height:42px;border-radius:99px;border:1px solid var(--line);background:#fff;display:grid;place-items:center;position:relative;color:var(--ink-2);transition:.15s}
+.icon-btn:hover{border-color:var(--ink);color:var(--ink);transform:translateY(-1px);box-shadow:var(--shadow)}
+.me-chip{display:flex;align-items:center;gap:10px;padding:6px 14px 6px 6px;border-radius:99px;border:1px solid var(--line);background:#fff;transition:.15s}
+.me-chip:hover{border-color:var(--ink);box-shadow:var(--shadow)}
+.me-chip img{width:32px;height:32px;border-radius:50%;object-fit:cover}
+.me-chip span{font:700 13.5px var(--font)}
+
+.wrap{max-width:1200px;margin:0 auto;padding:0 28px}
+.page{display:none;padding:34px 0 32px}
+.page.active{display:block;animation:pageIn .4s ease both}
+@keyframes pageIn{from{opacity:0;transform:translateY(12px)}}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:26px;box-shadow:var(--shadow)}
+.card h3{font:800 19px var(--font);letter-spacing:-.01em}
+
+/* KOMPONEN */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font:700 14px var(--font);padding:12px 20px;border-radius:99px;border:1.5px solid var(--ink);background:var(--ink);color:#FFF;transition:.2s}
+.btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 18px -8px rgba(30,58,138,.5)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn-blue{background:var(--blue);border-color:var(--blue)}
+.btn-green{background:var(--green);border-color:var(--green)}
+.btn-red{background:var(--red);border-color:var(--red)}
+.btn-ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn-ghost:hover:not(:disabled){border-color:var(--ink);background:var(--bg)}
+.btn-block{width:100%}
+.badge{display:inline-flex;align-items:center;gap:6px;font:700 11.5px var(--font);padding:5px 12px;border-radius:999px}
+.badge .dot{width:6px;height:6px;border-radius:50%}
+.b-ok{background:var(--green-soft);color:#166534}.b-ok .dot{background:var(--green)}
+.b-wait{background:var(--amber-soft);color:#92400E}.b-wait .dot{background:var(--amber)}
+.b-rev{background:var(--red-soft);color:#991B1B}.b-rev .dot{background:var(--red)}
+.chip-o{display:inline-block;border:1px solid var(--line);color:var(--ink-2);font:600 12px var(--font);padding:4px 12px;border-radius:99px}
+
+/* DASHBOARD */
+.grid-dash{display:grid;grid-template-columns:1.2fr 1fr;gap:26px;margin-top:26px}
+.id-card{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;background:linear-gradient(145deg,#FFFFFF,#F8FAFC)}
+.id-left{display:flex;align-items:center;gap:20px}
+.avatar-tile{width:98px;height:98px;border-radius:99px;background:var(--yellow);border:2px solid var(--ink);display:grid;place-items:center;position:relative;flex:none}
+.avatar-tile img{width:86px;height:86px;border-radius:50%;object-fit:cover}
+.greet{font:800 clamp(24px,2.8vw,32px)/1.15 var(--font);letter-spacing:-.015em;margin:6px 0 4px}
+.greet .blue{color:var(--blue)}
+.id-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.meta-chip{display:inline-flex;align-items:center;gap:7px;background:var(--bg);border:1px solid var(--line-soft);color:var(--ink-2);font:600 12.5px var(--font);padding:6px 12px;border-radius:99px}
+.id-stats{display:flex;gap:12px;flex-wrap:wrap}
+.stat{display:flex;gap:14px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:14px 18px;min-width:160px;box-shadow:var(--shadow)}
+.stat .ic{width:42px;height:42px;border-radius:99px;display:grid;place-items:center;flex:none}
+.ic-ink{background:var(--line-soft);color:var(--ink)}
+.ic-blue{background:var(--blue-soft);color:var(--blue)}
+.ic-amber{background:var(--amber-soft);color:var(--amber)}
+.ic-green{background:var(--green-soft);color:var(--green)}
+.stat b{font:700 22px var(--mono);display:block;line-height:1.1}
+.stat>div>span:last-child{font:700 10.5px var(--font);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+
+/* PRESENSI */
+.grid-pres{display:grid;grid-template-columns:1.15fr .85fr;gap:26px}
+.big-clock{font:700 clamp(46px,5.5vw,62px) var(--mono);letter-spacing:.01em;margin:6px 0 20px;color:var(--ink)}
+.big-clock small{font:600 15px var(--mono);color:var(--muted)}
+.today-date{font:800 18px var(--font);margin-top:12px}
+.ptl{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+.ptl-node{display:flex;align-items:center;gap:12px}
+.ptl-ic{width:46px;height:46px;border-radius:99px;background:var(--bg);border:1.5px solid var(--line);display:grid;place-items:center;color:var(--muted);transition:.2s}
+.ptl-node.done .ptl-ic{background:var(--blue);border-color:var(--blue);color:#fff;box-shadow:0 4px 12px rgba(37,99,235,.3)}
+.ptl-node span{font:700 11px var(--font);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);display:block}
+.ptl-node b{font:700 18px var(--mono)}
+.ptl-line{flex:1;height:3px;border-radius:99px;background:var(--line);transition:.3s}
+.ptl.on .ptl-line{background:var(--blue)}
+.pres-note{font:600 14px var(--font);color:var(--ink-2);background:var(--bg);border-radius:12px;padding:12px 15px;margin-bottom:16px}
+
+/* KAMERA */
+.cam-wrap{position:relative;background:#000;border-radius:20px;overflow:hidden;aspect-ratio:4/3;margin-bottom:16px}
+.cam-wrap video{width:100%;height:100%;object-fit:cover;display:block}
+.cam-watermark{position:absolute;bottom:0;left:0;right:0;background:rgba(30,58,138,.85);color:#fff;padding:12px 16px;font:600 13px var(--mono);border-top:3px solid var(--yellow)}
+.cam-watermark .loc{font-size:12px;color:#DBEAFE;margin-bottom:4px}
+.cam-watermark .time{font-size:14px;font-weight:700}
+.cam-preview{position:relative;border-radius:20px;overflow:hidden;margin-bottom:16px}
+.cam-preview img{width:100%;display:block}
+
+/* FORM */
+.field{display:flex;flex-direction:column;gap:8px;margin-bottom:18px}
+.field label{font:800 11.5px var(--font);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2)}
+.field input,.field select,.field textarea{border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;font:500 14.5px var(--font);background:#fff;transition:border .15s;width:100%}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue);outline:3px solid rgba(37,99,235,.15)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+/* TOAST */
+#toasts{position:fixed;z-index:130;right:24px;bottom:24px;display:flex;flex-direction:column;gap:12px;max-width:min(420px,calc(100vw - 48px))}
+.toast{display:flex;gap:12px;align-items:flex-start;background:var(--ink);color:#FFF;border-radius:16px;padding:14px 18px;box-shadow:var(--shadow-lg);font:600 13.5px/1.5 var(--font);animation:toastIn .35s cubic-bezier(.2,1.4,.3,1)}
+.toast svg{width:20px;height:20px;flex:none;margin-top:1px}
+.t-success svg{color:#4ADE80}.t-info svg{color:var(--yellow)}.t-warn svg{color:#FBBF24}.t-error svg{color:#F87171}
+.toast.out{animation:toastOut .3s ease forwards}
+@keyframes toastIn{from{opacity:0;transform:translateY(20px) scale(.9)}}
+@keyframes toastOut{to{opacity:0;transform:translateY(15px) scale(.95)}}
+
+/* RESPONSIVE */
+@media (max-width:1100px){
+  .grid-dash,.grid-pres{grid-template-columns:1fr}
+  .id-card{flex-direction:column;align-items:stretch}
+  .id-stats{display:grid;grid-template-columns:1fr 1fr}
+}
+@media (max-width:920px){
+  aside{display:none}
+  .main{margin-left:0}
+  .tb-brand-m{display:flex}
+  .tb-title{display:none}
+  .wrap{padding:0 16px}
+  .tb-in{padding:12px 16px}
+  .card{padding:20px}
+}
+@media (max-width:560px){
+  .me-chip span{display:none}
+  .tb-time{display:none}
+  .id-stats{grid-template-columns:1fr}
+  .frow{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside>
+  <div class="brand">
+    <svg viewBox="0 0 44 44" width="40" height="40">
+      <rect width="44" height="44" rx="13" fill="#1E3A8A"/>
+      <path d="M22 8.5c3.6 4.3 6 7.6 6 10.6a6 6 0 1 1-12 0c0-3 2.4-6.3 6-10.6z" fill="#FBB917"/>
+      <path d="M10 33.5c2.2-2.6 4.4-2.6 6.6 0s4.4 2.6 6.6 0 4.4-2.6 6.6 0 4.4 2.6 6.6 0" stroke="#FBB917" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+    </svg>
+    <div class="brand-t"><b>BBWS Brantas</b><small>Kementerian PUPR</small></div>
+  </div>
+  <p class="nav-label">Menu Utama</p>
+  <nav>
+    <button class="nav-btn on" data-page="dashboard"><i data-lucide="layout-dashboard"></i>Dashboard</button>
+    <button class="nav-btn" data-page="presensi"><i data-lucide="fingerprint"></i>Presensi</button>
+    <button class="nav-btn" data-page="monitoring"><i data-lucide="eye"></i>Monitoring</button>
+    <button class="nav-btn" data-page="koordinasi"><i data-lucide="handshake"></i>Koordinasi</button>
+    <button class="nav-btn" data-page="laporan"><i data-lucide="file-text"></i>Laporan</button>
+    <button class="nav-btn" data-page="biodata"><i data-lucide="user-round"></i>Biodata</button>
+  </nav>
+  <div class="side-foot">
+    <button class="side-user" data-page="biodata">
+      <img class="js-avatar" src="https://img.icons8.com/3d-fluency/256/user-male-circle.png" alt="">
+      <div><b class="js-nama">Loading...</b><small class="js-role">—</small></div>
+    </button>
+    <button class="side-out" id="btnLogout"><i data-lucide="log-out"></i>Keluar</button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <header class="topbar">
+    <div class="tb-in">
+      <div class="tb-brand-m">
+        <svg viewBox="0 0 44 44" width="34" height="34">
+          <rect width="44" height="44" rx="12" fill="#1E3A8A"/>
+          <path d="M22 8.5c3.6 4.3 6 7.6 6 10.6a6 6 0 1 1-12 0c0-3 2.4-6.3 6-10.6z" fill="#FBB917"/>
+        </svg>
+        <div><b>BBWS Brantas</b><small>Portal Pegawai</small></div>
+      </div>
+      <div class="tb-title">
+        <span class="kicker" id="tbKicker">Portal Pegawai</span>
+        <h2 id="tbTitle">Dashboard</h2>
+      </div>
+      <div class="tb-right">
+        <span class="tb-time" id="tbTime">—</span>
+        <button class="me-chip" data-page="biodata">
+          <img class="js-avatar" src="https://img.icons8.com/3d-fluency/256/user-male-circle.png" alt="">
+          <span class="js-nama">Loading...</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <main>
+
+      <!-- DASHBOARD -->
+      <section class="page active" data-page="dashboard">
+        <div class="card id-card">
+          <div class="id-left">
+            <div class="avatar-tile">
+              <img class="js-avatar" src="https://img.icons8.com/3d-fluency/256/user-male-circle.png" alt="">
+            </div>
+            <div class="id-info">
+              <span class="kicker">Portal Pegawai · BBWS Brantas</span>
+              <h1 class="greet"><span id="greetWord">Selamat pagi</span>, <span class="blue" id="greetName">—</span></h1>
+              <div class="id-meta">
+                <span class="meta-chip"><i data-lucide="hard-hat"></i><span class="js-jabatan">—</span></span>
+                <span class="meta-chip"><i data-lucide="building-2"></i><span class="js-di">—</span></span>
+                <span class="meta-chip mono"><i data-lucide="fingerprint"></i><span class="js-nomor">—</span></span>
+              </div>
+            </div>
+          </div>
+          <div class="id-stats">
+            <div class="stat"><span class="ic ic-ink"><i data-lucide="briefcase"></i></span><div><b id="stMasa">0</b><span>Masa Kerja</span></div></div>
+            <div class="stat"><span class="ic ic-blue"><i data-lucide="circle-check"></i></span><div><b id="stHadir">0</b><span>Kehadiran Bulan Ini</span></div></div>
+            <div class="stat"><span class="ic ic-amber"><i data-lucide="timer"></i></span><div><b id="stJam">0</b><span>Jam Kerja Bulan Ini</span></div></div>
+            <div class="stat"><span class="ic ic-green"><i data-lucide="file-check"></i></span><div><b id="stLapor">0</b><span>Laporan</span></div></div>
+          </div>
+        </div>
+
+        <div class="grid-dash">
+          <div class="card">
+            <span class="kicker">Presensi Hari Ini</span>
+            <div class="big-clock"><span id="dashClock">--.--.--</span> <small>WIB</small></div>
+            <span id="dashDate">—</span>
+            <div class="pres-note" id="dashPresState" style="margin-top:16px">—</div>
+            <div id="dashPresActions" style="display:flex;gap:12px;flex-wrap:wrap"></div>
+          </div>
+
+          <div class="card" style="background:var(--yellow);border:1px solid rgba(146,101,6,.22)">
+            <span class="kicker" style="color:rgba(30,58,138,.7)">Aksi Cepat</span>
+            <h3 style="font-size:20px;margin:10px 0 8px">Mulai Presensi Sekarang</h3>
+            <p style="font:500 14px/1.6 var(--font);color:rgba(30,58,138,.8);margin-bottom:18px">Lakukan check-in harian dengan foto berwatermark GPS untuk bukti kinerja Anda.</p>
+            <button class="btn" data-page="presensi"><i data-lucide="fingerprint"></i>Buka Presensi</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- PRESENSI -->
+      <section class="page" data-page="presensi">
+        <div class="grid-pres">
+          <div class="card">
+            <span class="kicker">E-Kehadiran</span>
+            <h2 class="today-date" id="presDate">—</h2>
+            <div class="big-clock"><span id="presClock">--.--.--</span> <small>WIB</small></div>
+            <div class="ptl" id="ptl">
+              <div class="ptl-node" id="ptMasuk"><span class="ptl-ic"><i data-lucide="log-in"></i></span><div><span>Check-in</span><b id="ptMasukTime">—</b></div></div>
+              <div class="ptl-line"></div>
+              <div class="ptl-node" id="ptKeluar"><span class="ptl-ic"><i data-lucide="log-out"></i></span><div><span>Check-out</span><b id="ptKeluarTime">—</b></div></div>
+            </div>
+            <div class="pres-note" id="presNote">—</div>
+            <div id="presActions" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px"></div>
+            <p style="font:500 13px var(--font);color:var(--muted);display:flex;gap:8px;align-items:center">
+              <i data-lucide="map-pin" style="width:16px;height:16px"></i>
+              <span id="geoStatus">Mendeteksi lokasi...</span>
+            </p>
+          </div>
+
+          <div class="card">
+            <span class="kicker">Kamera Presensi</span>
+            <h3 style="margin:8px 0 16px">Ambil Foto</h3>
+            <div class="cam-wrap" id="camWrap">
+              <video id="video" autoplay playsinline muted></video>
+              <div class="cam-watermark">
+                <div class="loc" id="camLoc">📍 Mendeteksi lokasi...</div>
+                <div class="time" id="camTime">🕐 —</div>
+              </div>
+            </div>
+            <div class="cam-preview" id="camPreview" hidden>
+              <img id="previewImg" alt="Preview">
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <button class="btn btn-blue" id="btnCapture" disabled><i data-lucide="camera"></i>Ambil Foto</button>
+              <button class="btn btn-ghost" id="btnRetake" hidden><i data-lucide="rotate-ccw"></i>Ulangi</button>
+              <button class="btn btn-green" id="btnSubmit" hidden><i data-lucide="check"></i>Kirim Presensi</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MONITORING -->
+      <section class="page" data-page="monitoring">
+        <div class="card">
+          <span class="kicker">Monitoring</span>
+          <h3 style="margin:8px 0 16px">Monitoring PPA & Pekarya</h3>
+          <p style="color:var(--muted)">Fitur monitoring akan tersedia setelah presensi berfungsi.</p>
+        </div>
+      </section>
+
+      <!-- KOORDINASI -->
+      <section class="page" data-page="koordinasi">
+        <div class="card">
+          <span class="kicker">Koordinasi</span>
+          <h3 style="margin:8px 0 16px">Koordinasi Juru & Krosda</h3>
+          <p style="color:var(--muted)">Fitur koordinasi akan tersedia setelah presensi berfungsi.</p>
+        </div>
+      </section>
+
+      <!-- LAPORAN -->
+      <section class="page" data-page="laporan">
+        <div class="card">
+          <span class="kicker">Laporan</span>
+          <h3 style="margin:8px 0 16px">Laporan Harian</h3>
+          <p style="color:var(--muted)">Fitur laporan akan tersedia setelah presensi berfungsi.</p>
+        </div>
+      </section>
+
+      <!-- BIODATA -->
+      <section class="page" data-page="biodata">
+        <div class="card">
+          <span class="kicker">Profil Pegawai</span>
+          <h3 style="margin:8px 0 16px">Biodata</h3>
+          <div class="frow">
+            <div class="field"><label>Nama Lengkap</label><input class="js-nama" readonly></div>
+            <div class="field"><label>Nomor Identitas</label><input class="js-nomor" readonly></div>
+            <div class="field"><label>Jabatan</label><input class="js-jabatan" readonly></div>
+            <div class="field"><label>Daerah Irigasi</label><input class="js-di" readonly></div>
+            <div class="field"><label>Role</label><input class="js-role" readonly></div>
+            <div class="field"><label>Username</label><input class="js-username" readonly></div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+    <footer style="text-align:center;font:600 12.5px var(--font);color:var(--muted);padding:32px 0 48px">
+      Balai Besar Wilayah Sungai Brantas · Direktorat Jenderal Sumber Daya Air · Kementerian PUPR
+    </footer>
+  </div>
+</div>
+
+<div id="toasts"></div>
+
+<script src="https://unpkg.com/lucide@0.454.0/dist/umd/lucide.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/supabase.js"></script>
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/presensi.js"></script>
+
+<script>
+/* ============================================================
+   APP LOGIC
+   ============================================================ */
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const pad = n => String(n).padStart(2, '0');
+const refreshIcons = () => { if (window.lucide) lucide.createIcons(); };
+
+// ============================================================
+// CEK LOGIN
+// ============================================================
+const session = requireLogin();
+if (!session) throw new Error('Not logged in');
+
+// ============================================================
+// ISI DATA SESSION
+// ============================================================
+const pegawai = session.pegawai || {};
+const namaLengkap = pegawai.nama || session.nama_lengkap || 'Pegawai';
+
+// Set semua elemen .js-nama, .js-jabatan, dll
+$$('.js-nama').forEach(el => el.textContent = namaLengkap);
+$$('.js-jabatan').forEach(el => el.textContent = pegawai.jabatan || session.role);
+$$('.js-nomor').forEach(el => el.textContent = pegawai.nomor_identitas || session.username);
+$$('.js-role').forEach(el => el.textContent = session.role);
+$$('.js-username').forEach(el => el.textContent = session.username);
+
+// DI
+(async () => {
+  if (pegawai.id_di) {
+    try {
+      const { data } = await supabaseClient.from('di').select('nama_di').eq('id_di', pegawai.id_di).maybeSingle();
+      if (data) $$('.js-di').forEach(el => el.textContent = data.nama_di);
+    } catch(e) {}
+  }
+})();
+
+// Avatar (jika ada)
+if (pegawai.link_foto_2 || pegawai.link_foto_1) {
+  const foto = pegawai.link_foto_2 || pegawai.link_foto_1;
+  $$('.js-avatar').forEach(el => el.src = foto);
+}
+
+// Greeting
+const h = new Date().getHours();
+$('#greetWord').textContent = h < 11 ? 'Selamat pagi' : h < 15 ? 'Selamat siang' : h < 19 ? 'Selamat sore' : 'Selamat malam';
+$('#greetName').textContent = namaLengkap.split(' ')[0];
+
+// ============================================================
+// NAVIGASI
+// ============================================================
+const PAGES = {
+  dashboard: { k: 'Portal Pegawai', t: 'Dashboard' },
+  presensi: { k: 'E-Kehadiran', t: 'Presensi' },
+  monitoring: { k: 'Monitoring', t: 'Monitoring PPA & Pekarya' },
+  koordinasi: { k: 'Koordinasi', t: 'Koordinasi Juru & Krosda' },
+  laporan: { k: 'Laporan', t: 'Laporan Harian' },
+  biodata: { k: 'Profil Pegawai', t: 'Biodata' }
+};
+
+function go(page) {
+  $$('.page').forEach(s => s.classList.toggle('active', s.dataset.page === page));
+  $$('.nav-btn').forEach(b => b.classList.toggle('on', b.dataset.page === page));
+  const m = PAGES[page];
+  if (m) { $('#tbKicker').textContent = m.k; $('#tbTitle').textContent = m.t; }
+  window.scrollTo(0, 0);
+  refreshIcons();
+}
+
+document.addEventListener('click', e => {
+  const btn = e.target.closest('[data-page]');
+  if (btn) { go(btn.dataset.page); return; }
+});
+
+$('#btnLogout').addEventListener('click', () => {
+  if (confirm('Keluar dari Portal Pegawai?')) logout();
+});
+
+// ============================================================
+// JAM
+// ============================================================
+function tick() {
+  const d = new Date();
+  const hms = d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  const hm = d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+  $('#tbTime').textContent = d.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short' }) + ' · ' + hm;
+  $('#dashClock').textContent = hms;
+  $('#presClock').textContent = hms;
+  $('#dashDate').textContent = d.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  $('#presDate').textContent = d.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  $('#camTime').textContent = '🕐 ' + hms + ' WIB';
+}
+tick(); setInterval(tick, 1000);
+
+// ============================================================
+// TOAST
+// ============================================================
+function toast(msg, type = 'success') {
+  const ic = { success: 'circle-check', info: 'info', warn: 'triangle-alert', error: 'circle-alert' }[type];
+  const el = document.createElement('div');
+  el.className = 'toast t-' + type;
+  el.innerHTML = `<i data-lucide="${ic}"></i><div>${msg}</div>`;
+  $('#toasts').append(el); refreshIcons();
+  setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 320); }, 3400);
+}
+
+// ============================================================
+// PRESENSI — STATE
+// ============================================================
+const today = new Date().toISOString().slice(0, 10);
+const state = {
+  lokasi: null,
+  fotoBase64: null,
+  presensi: { masuk: null, keluar: null }
+};
+
+// ============================================================
+// PRESENSI — CEK DATA HARI INI
+// ============================================================
+async function cekPresensiHariIni() {
+  if (!session.id_pegawai) return;
+  try {
+    const { data } = await supabaseClient
+      .from('presensi')
+      .select('*')
+      .eq('id_pegawai', session.id_pegawai)
+      .eq('tanggal', today)
+      .maybeSingle();
+    if (data) {
+      state.presensi.masuk = data.jam_masuk ? new Date(today + 'T' + data.jam_masuk) : null;
+      state.presensi.keluar = data.jam_keluar ? new Date(today + 'T' + data.jam_keluar) : null;
+      renderPresensi();
+    }
+  } catch (e) { console.error(e); }
+}
+
+// ============================================================
+// PRESENSI — RENDER
+// ============================================================
+function renderPresensi() {
+  const p = state.presensi;
+  const fmt = d => d ? d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '—';
+  
+  $('#ptMasukTime').textContent = fmt(p.masuk);
+  $('#ptKeluarTime').textContent = fmt(p.keluar);
+  $('#ptMasuk').classList.toggle('done', !!p.masuk);
+  $('#ptKeluar').classList.toggle('done', !!p.keluar);
+  $('#ptl').classList.toggle('on', !!p.masuk);
+  
+  let note, actionsHTML;
+  
+  if (!p.masuk) {
+    note = 'Anda belum melakukan presensi hari ini.';
+    actionsHTML = `<button class="btn btn-blue" onclick="go('presensi')"><i data-lucide="camera"></i>Check-in Sekarang</button>`;
+  } else if (!p.keluar) {
+    note = `Sudah check-in pukul ${fmt(p.masuk)}. Jangan lupa check-out sebelum pulang.`;
+    actionsHTML = `<span class="badge b-ok"><span class="dot"></span>Hadir</span>`;
+  } else {
+    note = `Presensi hari ini selesai. Masuk ${fmt(p.masuk)}, keluar ${fmt(p.keluar)}.`;
+    actionsHTML = `<span class="badge b-ok"><span class="dot"></span>Selesai</span>`;
+  }
+  
+  $('#presNote').textContent = note;
+  $('#dashPresState').textContent = note;
+  $('#presActions').innerHTML = actionsHTML;
+  $('#dashPresActions').innerHTML = actionsHTML;
+  refreshIcons();
+}
+
+// ============================================================
+// PRESENSI — GEOLOKASI
+// ============================================================
+async function initLocation() {
+  try {
+    const loc = await getLocation();
+    state.lokasi = loc;
+    const locText = `${loc.lat.toFixed(6)}, ${loc.lng.toFixed(6)} (±${Math.round(loc.accuracy)}m)`;
+    $('#camLoc').textContent = '📍 ' + locText;
+    $('#geoStatus').textContent = 'Lokasi terdeteksi: ' + locText;
+    $('#btnCapture').disabled = false;
+  } catch (err) {
+    $('#camLoc').textContent = '📍 Gagal deteksi lokasi';
+    $('#geoStatus').textContent = err.message;
+  }
+}
+
+// ============================================================
+// PRESENSI — KAMERA
+// ============================================================
+async function initCamera() {
+  const video = $('#video');
+  const ok = await startCamera(video, 'user');
+  if (!ok) {
+    toast('Gagal akses kamera. Pastikan izin kamera diberikan.', 'error');
+  }
+}
+
+// Capture
+$('#btnCapture').addEventListener('click', async () => {
+  if (!state.lokasi) {
+    toast('Lokasi belum terdeteksi', 'warn');
+    return;
+  }
+  const video = $('#video');
+  const base64 = await captureWithWatermark(video, state.lokasi);
+  const compressed = await compressImage(base64, CONFIG.FOTO_MAX_WIDTH, CONFIG.FOTO_QUALITY);
+  state.fotoBase64 = compressed;
+  
+  $('#previewImg').src = compressed;
+  $('#camPreview').hidden = false;
+  $('#camWrap').hidden = true;
+  $('#btnCapture').hidden = true;
+  $('#btnRetake').hidden = false;
+  $('#btnSubmit').hidden = false;
+  toast('Foto berhasil diambil', 'success');
+});
+
+// Retake
+$('#btnRetake').addEventListener('click', () => {
+  state.fotoBase64 = null;
+  $('#camPreview').hidden = true;
+  $('#camWrap').hidden = false;
+  $('#btnCapture').hidden = false;
+  $('#btnRetake').hidden = true;
+  $('#btnSubmit').hidden = true;
+});
+
+// Submit
+$('#btnSubmit').addEventListener('click', async () => {
+  if (!state.fotoBase64 || !state.lokasi) {
+    toast('Foto atau lokasi belum siap', 'warn');
+    return;
+  }
+  
+  const btn = $('#btnSubmit');
+  btn.disabled = true;
+  btn.innerHTML = '<span style="display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite"></span> Mengirim...';
+  
+  try {
+    const now = new Date();
+    const tipe = !state.presensi.masuk ? 'masuk' : 'keluar';
+    const timestamp = now.toISOString().replace(/[:.]/g, '-');
+    const namaFile = `presensi_${session.username}_${today}_${tipe}_${timestamp}.jpg`;
+    const folderPath = `Presensi/${today.slice(0, 7)}/DI-${pegawai.id_di || 'X'}`;
+    
+    // Upload foto
+    const uploadResult = await uploadFoto(state.fotoBase64, namaFile, folderPath);
+    if (!uploadResult.success) throw new Error(uploadResult.error || 'Upload gagal');
+    
+    // Simpan ke Supabase
+    const jam = now.toTimeString().slice(0, 8);
+    const lokasiStr = `${state.lokasi.lat.toFixed(6)}, ${state.lokasi.lng.toFixed(6)}`;
+    
+    if (tipe === 'masuk') {
+      await dbInsert('presensi', {
+        id_pegawai: session.id_pegawai,
+        tanggal: today,
+        jam_masuk: jam,
+        lokasi_masuk: lokasiStr,
+        foto_masuk: uploadResult.linkLh3,
+        status: 'Hadir',
+        poin: 1
+      });
+      state.presensi.masuk = now;
+    } else {
+      await dbUpdate('presensi', 'id_pegawai', session.id_pegawai, {
+        jam_keluar: jam,
+        lokasi_keluar: lokasiStr,
+        foto_keluar: uploadResult.linkLh3
+      });
+      state.presensi.keluar = now;
+    }
+    
+    toast(`Check-${tipe} berhasil pada ${jam.slice(0, 5)} WIB`, 'success');
+    renderPresensi();
+    
+    // Reset form
+    $('#camPreview').hidden = true;
+    $('#camWrap').hidden = false;
+    $('#btnCapture').hidden = false;
+    $('#btnRetake').hidden = true;
+    $('#btnSubmit').hidden = true;
+    btn.disabled = false;
+    btn.innerHTML = '<i data-lucide="check"></i>Kirim Presensi';
+    state.fotoBase64 = null;
+    refreshIcons();
+    
+  } catch (err) {
+    console.error(err);
+    toast('Gagal: ' + err.message, 'error');
+    btn.disabled = false;
+    btn.innerHTML = '<i data-lucide="check"></i>Kirim Presensi';
+    refreshIcons();
+  }
+});
+
+// ============================================================
+// INIT
+// ============================================================
+(async () => {
+  refreshIcons();
+  cekPresensiHariIni();
+  await initCamera();
+  await initLocation();
+  refreshIcons();
+})();
+</script>
+</body>
+</html>
