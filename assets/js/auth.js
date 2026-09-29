@@ -1,45 +1,65 @@
 // ============================================================
-// AUTH — Login, Logout, Cek Session
+// AUTH — Login, Logout, Session
 // ============================================================
+
+const SESSION_KEY = 'op3_session';
 
 // ============================================================
 // LOGIN
 // ============================================================
 async function login(username, password) {
   try {
-    // Cari user di tabel users
     const { data, error } = await supabaseClient
       .from('users')
       .select('*')
       .eq('username', username)
       .eq('password', password)
       .eq('aktif', true)
-      .single();
+      .maybeSingle();
     
-    if (error || !data) {
+    if (error) {
+      console.error('Login error:', error);
+      return { success: false, message: 'Terjadi kesalahan: ' + error.message };
+    }
+    
+    if (!data) {
       return { success: false, message: 'Username atau password salah!' };
     }
     
-    // Simpan session di localStorage
+    // Ambil data pegawai jika ada
+    let pegawaiData = null;
+    if (data.id_pegawai) {
+      const { data: peg } = await supabaseClient
+        .from('pegawai')
+        .select('*')
+        .eq('id_pegawai', data.id_pegawai)
+        .maybeSingle();
+      pegawaiData = peg;
+    }
+    
+    // Simpan session
     const session = {
       id_user: data.id_user,
       username: data.username,
       nama_lengkap: data.nama_lengkap,
       role: data.role,
       id_pegawai: data.id_pegawai,
+      pegawai: pegawaiData,
       login_at: new Date().toISOString()
     };
     
-    localStorage.setItem('op3_session', JSON.stringify(session));
+    localStorage.setItem(SESSION_KEY, JSON.stringify(session));
     
     // Update last_login
-    await supabaseClient
+    supabaseClient
       .from('users')
       .update({ last_login: new Date().toISOString() })
-      .eq('id_user', data.id_user);
+      .eq('id_user', data.id_user)
+      .then(() => {});
     
     return { success: true, session };
   } catch (error) {
+    console.error('Login exception:', error);
     return { success: false, message: 'Error: ' + error.message };
   }
 }
@@ -48,16 +68,17 @@ async function login(username, password) {
 // LOGOUT
 // ============================================================
 function logout() {
-  localStorage.removeItem('op3_session');
+  localStorage.removeItem(SESSION_KEY);
   window.location.href = 'index.html';
 }
 
 // ============================================================
-// CEK SESSION
+// SESSION
 // ============================================================
 function getSession() {
-  const session = localStorage.getItem('op3_session');
-  return session ? JSON.parse(session) : null;
+  const raw = localStorage.getItem(SESSION_KEY);
+  if (!raw) return null;
+  try { return JSON.parse(raw); } catch { return null; }
 }
 
 function requireLogin() {
@@ -69,43 +90,7 @@ function requireLogin() {
   return session;
 }
 
-// ============================================================
-// CEK ROLE
-// ============================================================
 function hasRole(...roles) {
-  const session = getSession();
-  return session && roles.includes(session.role);
+  const s = getSession();
+  return s && roles.includes(s.role);
 }
-
-// ============================================================
-// HANDLE FORM LOGIN
-// ============================================================
-document.addEventListener('DOMContentLoaded', () => {
-  const loginForm = document.getElementById('loginForm');
-  if (loginForm) {
-    loginForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      const username = document.getElementById('username').value.trim();
-      const password = document.getElementById('password').value.trim();
-      const btnLogin = document.getElementById('btnLogin');
-      const errorMsg = document.getElementById('errorMsg');
-      
-      // Disable button
-      btnLogin.disabled = true;
-      btnLogin.textContent = 'Memproses...';
-      errorMsg.style.display = 'none';
-      
-      const result = await login(username, password);
-      
-      if (result.success) {
-        window.location.href = 'dashboard.html';
-      } else {
-        errorMsg.textContent = result.message;
-        errorMsg.style.display = 'block';
-        btnLogin.disabled = false;
-        btnLogin.textContent = 'Masuk';
-      }
-    });
-  }
-});
