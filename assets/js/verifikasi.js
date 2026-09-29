@@ -4,14 +4,14 @@
 
 let verifikasiState = {
   tanggal: new Date().toISOString().slice(0, 10),
-  statusFilter: 'belum', // belum, layak, tidak_layak, semua
+  statusFilter: 'belum',
   list: [],
   pegawaiMap: {},
   diMap: {}
 };
 
 // ============================================================
-// LOAD DATA PEGAWAI & DI (untuk lookup)
+// LOAD MASTER DATA
 // ============================================================
 async function loadMasterData() {
   const [pegawaiList, diList] = await Promise.all([
@@ -27,22 +27,20 @@ async function loadMasterData() {
 }
 
 // ============================================================
-// LOAD PRESENSI YANG PERLU DIVERIFIKASI
+// LOAD PRESENSI
 // ============================================================
 async function loadPresensi() {
   const session = getSession();
   if (!session) return;
   
-  // Filter: hanya presensi di DI yang sama dengan Staf Pengamat
   let query = supabaseClient
     .from('presensi')
     .select('*')
     .eq('tanggal', verifikasiState.tanggal)
     .order('created_at', { ascending: false });
   
-  // Staf Pengamat: filter berdasarkan DI-nya
+  // Filter Staf Pengamat: hanya DI-nya
   if (session.role === 'staf_pengamat' && session.pegawai?.id_di) {
-    // Ambil daftar id_pegawai di DI yang sama
     const pegawaiIds = Object.values(verifikasiState.pegawaiMap)
       .filter(p => p.id_di === session.pegawai.id_di)
       .map(p => p.id_pegawai);
@@ -58,7 +56,6 @@ async function loadPresensi() {
     return;
   }
   
-  // Filter status verifikasi
   let list = data || [];
   if (verifikasiState.statusFilter === 'belum') {
     list = list.filter(p => !p.status_verifikasi);
@@ -73,7 +70,7 @@ async function loadPresensi() {
 }
 
 // ============================================================
-// RENDER DAFTAR VERIFIKASI
+// RENDER LIST
 // ============================================================
 function renderVerifikasiList() {
   const tbody = document.getElementById('verifTbody');
@@ -99,7 +96,6 @@ function renderVerifikasiList() {
     const pegawai = verifikasiState.pegawaiMap[p.id_pegawai] || {};
     const diNama = verifikasiState.diMap[pegawai.id_di] || '-';
     
-    // Status badge
     let statusBadge = '<span class="badge b-wait"><span class="dot"></span>Belum</span>';
     if (p.status_verifikasi === 'Layak') {
       statusBadge = '<span class="badge b-ok"><span class="dot"></span>Layak</span>';
@@ -107,7 +103,6 @@ function renderVerifikasiList() {
       statusBadge = '<span class="badge b-rev"><span class="dot"></span>Tidak Layak</span>';
     }
     
-    // Waktu
     const jamMasuk = p.jam_masuk ? p.jam_masuk.slice(0, 5) : '-';
     const jamKeluar = p.jam_keluar ? p.jam_keluar.slice(0, 5) : '-';
     
@@ -134,7 +129,7 @@ function renderVerifikasiList() {
             <button class="btn btn-green sm" onclick="verifikasiPresensi('${p.id_presensi}', 'Layak')">
               <i data-lucide="check"></i>Layak
             </button>
-            <button class="btn btn-red sm" onclick="verifikasiPresensi('${p.id_presensi}', 'Tidak Layak')">
+            <button class="btn btn-red sm" onclick="verifikasiPresensi('${p.id_presensi}', 'Tidak Layak')" style="margin-left:6px">
               <i data-lucide="x"></i>Tolak
             </button>
           ` : `
@@ -149,14 +144,14 @@ function renderVerifikasiList() {
 }
 
 // ============================================================
-// VERIFIKASI PRESENSI
+// VERIFIKASI
 // ============================================================
 async function verifikasiPresensi(idPresensi, status) {
   let catatan = '';
   
   if (status === 'Tidak Layak') {
     catatan = prompt('Alasan tidak layak:');
-    if (catatan === null) return; // User cancel
+    if (catatan === null) return;
     if (!catatan.trim()) {
       toast('Alasan wajib diisi untuk "Tidak Layak"', 'warn');
       return;
@@ -176,8 +171,6 @@ async function verifikasiPresensi(idPresensi, status) {
     });
     
     toast(`Presensi berhasil diverifikasi: ${status}`, 'success');
-    
-    // Reload
     await loadPresensi();
     
   } catch (err) {
@@ -207,13 +200,12 @@ function closeFotoModal() {
 }
 
 // ============================================================
-// INIT VERIFIKASI
+// INIT
 // ============================================================
 async function initVerifikasi() {
   await loadMasterData();
   await loadPresensi();
   
-  // Event: filter tanggal
   const tglInput = document.getElementById('verifTanggal');
   if (tglInput) {
     tglInput.value = verifikasiState.tanggal;
@@ -223,7 +215,6 @@ async function initVerifikasi() {
     });
   }
   
-  // Event: filter status
   const statusSelect = document.getElementById('verifStatus');
   if (statusSelect) {
     statusSelect.addEventListener('change', async (e) => {
@@ -232,7 +223,6 @@ async function initVerifikasi() {
     });
   }
   
-  // Event: refresh
   const btnRefresh = document.getElementById('verifRefresh');
   if (btnRefresh) {
     btnRefresh.addEventListener('click', loadPresensi);
